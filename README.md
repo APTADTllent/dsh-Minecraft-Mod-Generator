@@ -65,16 +65,17 @@ DSH 会把这个仓库拉进 profile 的 `node_modules` 并注册好。装完重
 | 基本功能（生成工程骨架、贴图、结构文件） | **无外部依赖** —— `lib/` 是纯 ESM JavaScript，只用 Node 内置模块 |
 | 生成 Java 工程 | JDK 21（Fabric 1.20.5+ 要求），Gradle（工程自带 wrapper 配置） |
 | 音效转换 | `ffmpeg`（在 PATH 里，或改脚本里的路径） |
-| 提取原版贴图 | 一个《我的世界》Java 版客户端 jar |
+| 提取原版贴图 | 一个《我的世界》Java 版客户端 jar；由 `lib/zip.js` 在进程内解包，不需要额外工具 |
 
 `scripts/` 下有三个 PowerShell 脚本帮忙装环境：
 
 - `install-jdk.ps1` — 下载并配置 JDK 21
 - `install-gradle.ps1` — 配置 Gradle（带国内镜像回退）
-- `extract-textures.ps1` — 从客户端 jar 里提取原版贴图
+- `extract-textures.ps1` — 已经不在运行时路径上，仅保留给新旧实现做逐字节对比测试，
+  不再需要人手调用
 
-这三个脚本是 Windows PowerShell 的。**插件主体（`lib/`）是纯 ESM JavaScript，
-跨平台可用**；只有脚本是 Windows 专用。
+装环境这三个脚本是 Windows PowerShell 的。**插件主体（`lib/`）是纯 ESM JavaScript，
+跨平台可用**；只有安装/测试脚本是 Windows 专用。
 
 ### 限制
 
@@ -101,7 +102,22 @@ DSH 会把这个仓库拉进 profile 的 `node_modules` 并注册好。装完重
 | `execFileSync('where', ['ffmpeg'])` | 查找 ffmpeg 是否可用 |
 | `execFileSync(ffmpeg, [...])` | 把音频转成 `.ogg`（基岩版音效格式要求） |
 | `execFileSync(<JDK>/bin/javac.exe, [...])` | `verify` 子工具做编译检查 |
-| `execFileSync('powershell', [...])` | 提取原版贴图 |
+
+**抽原版贴图不在这张表里** —— 自 2026-10-03 起改由 `lib/zip.js` 用 Node 内置
+`zlib` 在进程内解包，不起子进程。旧版借 PowerShell + .NET 解包，已移除。
+
+### 这些程序的路径和参数从哪来（评审关心的"是否可被攻击者控制"）
+
+| 受控对象 | 来源 | 模型输入能否影响 |
+|---|---|---|
+| `ffmpeg` | `DSH_FFMPEG` 环境变量，或 PATH 里查到的第一个 | 不能 |
+| `<JDK>/bin/javac.exe` | `scripts/install-jdk.ps1` 写的记号文件，或扫 `<home>/tools/jdk-*` 目录 | 不能 |
+| 客户端 `jar` | 在固定的游戏目录候选里扫 `versions/*/*.jar`，挑最大的 | 不能 |
+| 传给它们的参数 | 固定开关 + 上述路径 + 工程内自己生成的源文件路径 | 不能 |
+
+工具参数（方块名、尺寸、颜色、模组名等）**只影响生成的源码内容，不进命令行、
+也不参与路径解析**。这是本插件的边界：模型能决定"生成什么代码"，不能决定
+"调用哪个程序"。
 
 **外联域名**（仅 `net` 子工具和你主动跑安装脚本时会访问）：
 
