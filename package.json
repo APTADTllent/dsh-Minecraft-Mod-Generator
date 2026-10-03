@@ -1,0 +1,41 @@
+{
+  "name": "dsh-minecraft-mod-generator",
+  "version": "1.0.0",
+  "description": "《我的世界》模组生成工作台：只对模型暴露一个工具 mc_mod，内部由 21 个子工具分派（结构/方块/方块纹理/生物/生物AI/生物贴图/群系/效果/酿造/物品/物品纹理/道具用法/合成/音效/动作/渲染/粒子/版本适配/工程体检/联网接口）。Java 出 Fabric 工程，基岩出附加包。",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./package.json": "./package.json"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "cordis-plugin",
+    "minecraft",
+    "mod-generator",
+    "fabric",
+    "bedrock",
+    "addon",
+    "mcstructure",
+    "datapack",
+    "ai-agent"
+  ],
+  "license": "MIT",
+  "files": [
+    "lib",
+    "scripts",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/APTADTllent/dsh-minecraft-mod-generator.git"
+  },
+  "homepage": "https://github.com/APTADTllent/dsh-minecraft-mod-generator#readme",
+  "bugs": {
+    "url": "https://github.com/APTADTllent/dsh-minecraft-mod-generator/issues"
+  }
+}
